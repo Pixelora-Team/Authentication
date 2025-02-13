@@ -1,37 +1,63 @@
 import { useState } from "react";
-import { login } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
+import './css/login.css';
+import image from './images/login2.png';
 
 const Login = () => {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
+    const API_URL = "http://localhost:5000/api/auth/";
+
+    const login = async (username, password) => {
+    const response = await axios.post(`${API_URL}login`, { username, password });
+    if (!response.data.token) {
+        throw new Error("Invalid credentials");
+    }
+    localStorage.setItem("token", response.data.token);
+    return response.data;
+};
+
     const handleLogin = async () => {
         try {
             const data = await login(username, password);
-            alert(`Welcome ${data.username}`);
-            navigate("/profile");
+            console.log("Login successful, data received:", data); 
+            if (data.token) {
+                alert(`Welcome ${data.username}`);
+                navigate("/profile");
+            }
         } catch (error) {
             console.error("Login failed:", error);
             alert("Login failed. Please check your credentials.");
         }
     };
-
+    
     return (
-        <div>
-            <input 
-                placeholder="Username" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} 
-            />
-            <input 
-                type="password" 
-                placeholder="Password" 
-                value={password} 
-                onChange={(e) => setPassword(e.target.value)} 
-            />
-            <button onClick={handleLogin}>Login</button>
+        <div id="mainlogin">
+            <img src={image} alt="login" />
+            <div id="logincontainer">
+                <h1>Login</h1>
+                <input 
+                    placeholder="Username" 
+                    value={username} 
+                    onChange={(e) => setUsername(e.target.value)} 
+                    id="name"
+                />
+                <input 
+                    type="password" 
+                    placeholder="Password" 
+                    value={password} 
+                    onChange={(e) => setPassword(e.target.value)} 
+                    id="password"
+                />
+                <button onClick={handleLogin}>Login</button>
+                <p onClick={() => {
+                    navigate('/register')
+                }}>Don't have an account</p>
+
+            </div>
         </div>
     );
 };
