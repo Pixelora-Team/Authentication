@@ -93,12 +93,12 @@ const Profile = () => {
                                 {allImage.map((img, index) => (
                                     <img key={index} src={img} alt="Uploaded" width="150px" style={{ margin: "10px" }} />
                                 ))}
-                                <span id="button"  onClick={() => setFormVisible(true)}>Upload Image</span>
+                                
                             </div>
                             
                         </div>
                     )}
-                    
+                    <span id="button"  onClick={() => setFormVisible(true)}>Upload Image</span>
 
                    
                     <button id="logoutbutton" onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}>
