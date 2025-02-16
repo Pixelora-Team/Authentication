@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import './css/profile.css';
+import "./css/profile.css";
 import axios from "axios";
 
 const Profile = () => {
@@ -8,6 +8,7 @@ const Profile = () => {
     const [image, setImage] = useState(null);
     const [imageUrl, setImageUrl] = useState("");
     const [allImage, setAllImage] = useState([]);
+    const [formVisible, setFormVisible] = useState(false);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -20,10 +21,10 @@ const Profile = () => {
 
             try {
                 const response = await axios.get("http://localhost:5000/api/auth/profile", {
-                    headers: { Authorization: `Bearer ${token}` }
+                    headers: { Authorization: `Bearer ${token}`},
                 });
                 setUser(response.data);
-                setAllImage(response.data.profilePics || []); 
+                setAllImage(response.data.profilePics || []);
             } catch (error) {
                 console.error("Error fetching profile:", error);
                 localStorage.removeItem("token");
@@ -34,71 +35,73 @@ const Profile = () => {
         fetchProfile();
     }, [navigate]);
 
-    const handleClick = async () => {
+    const handleUpload = async () => {
         if (!image) {
-            alert("Please Select Image");
+            alert("Please select an image.");
             return;
         }
 
         const formData = new FormData();
-        formData.append("image", image); 
+        formData.append("image", image);
 
         try {
             const token = localStorage.getItem("token");
 
-            const uploadRes = await axios.post("http://localhost:5000/upload", 
-                formData, 
-                { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+            const uploadRes = await axios.post(
+                "http://localhost:5000/upload",
+                formData,
+                { headers: { Authorization:` Bearer ${token}`, "Content-Type": "multipart/form-data" } }
             );
 
-            const uploadedImageUrl = uploadRes.data.imageUrl; 
+            const uploadedImageUrl = uploadRes.data.imageUrl;
 
             setImageUrl(uploadedImageUrl);
-            setAllImage((prevImages) => [...prevImages, uploadedImageUrl]); 
+            setAllImage((prevImages) => [...prevImages, uploadedImageUrl]);
+            setFormVisible(false); 
         } catch (error) {
             console.error("Error uploading image:", error);
         }
     };
 
     return (
-        <div>
-            <h2>Profile</h2>
+        <div id="mainprofile">
+            <h1 id="header">Profile</h1>
             {user ? (
-                <div>
-                    <p><strong>Username:</strong> {user.username}</p>
-                    
-                    <form encType="multipart/form-data">
-                        <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
-                        <button type="button" onClick={handleClick}>Upload</button>
-                    </form>
+                <div id="usercontainer">
+                    <h1><strong>Username:</strong> <span>{user.username}</span></h1>
 
-                    {imageUrl && (
-                        <div>
-                            <img src={imageUrl} alt="Uploaded" width="200px" />
-                        </div>
-                    )}
-
-                    {allImage.length > 0 && (
-                        <div>
-                            <h3>All Uploaded Images:</h3>
-                            <div style={{ display: "flex", flexWrap: "wrap" }}>
-                                {allImage.map((img, index) => (
-                                    <img
-                                        key={index}
-                                        src={img}
-                                        alt="Uploaded"
-                                        width="150px"
-                                        style={{ margin: "10px" }}
-                                    />
-                                ))}
+                    {formVisible && (
+                        <div id="model">
+                            <div id="modelcontent">
+                                <h3>Add User</h3>
+                                <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} id="inputfile"/>
+                                <br />
+                                <div id="buttoncontainer">
+                                    <button onClick={handleUpload} id="submit">Submit</button>
+                                    <button onClick={() => setFormVisible(false)} id="cancle">Cancel</button>
+                                </div>
                             </div>
                         </div>
                     )}
 
-                    <button onClick={() => { 
-                        localStorage.removeItem("token"); 
-                        navigate("/login"); 
-                    }}>
+                    <hr id="hr"></hr>
+                    
+                    {allImage.length > 0 && (
+                        <div>
+                            <h3 id="uploadheader">Uploaded Images:</h3>
+                            <div id="mainimagecontainer">
+                                {allImage.map((img, index) => (
+                                    <img key={index} src={img} alt="Uploaded" width="150px" style={{ margin: "10px" }} />
+                                ))}
+                                <span id="button"  onClick={() => setFormVisible(true)}>Upload Image</span>
+                            </div>
+                            
+                        </div>
+                    )}
+                    
+
+                   
+                    <button id="logoutbutton" onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}>
                         Logout
                     </button>
                 </div>

@@ -31,7 +31,9 @@ const Register = () => {
                     <h1>Register</h1>
                     <input placeholder="Username" onChange={(e) => setUsername(e.target.value)} />
                     <input type="password" placeholder="Password" onChange={(e) => setPassword(e.target.value)} />
+                    
                     <button onClick={handleRegister}>Register</button>
+                    <p onClick={() => {navigate('/login')}}>Already Have an account</p>
                 </div>
                 <img src={image} alt="register" />
         </div>

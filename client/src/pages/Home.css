@@ -71,8 +71,8 @@ body{
     white-space: nowrap;
     overflow: hidden;
     display: inline-block;
-    border-right: 3px solid black; /* Cursor effect */
-    width: 20ch; /* Match the text length */
+    border-right: 3px solid black;
+    width: 20ch;
     animation: typing 3s steps(20, end), blink 0.7s infinite;
 }
 

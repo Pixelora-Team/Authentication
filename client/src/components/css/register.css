@@ -51,6 +51,38 @@
     font-family: Arial, sans-serif;
 }
 
+#registercontainer p{
+    color: blue;
+    text-decoration: underline;
+    cursor: pointer;
+    font-family: Arial, sans-serif;
+}
+
 #registercontainer button:hover {
     background-color: rgb(80, 80, 220);
+}
+
+
+@media only screen and (max-width: 768px) {
+    #mainregister{
+        margin-top: 4cqmin ;
+        flex-direction: column;
+        padding: 0;
+    }
+
+    #mainregister img{
+        border-radius: 50%;
+    }
+
+    #registercontainer {
+        width: 80%;
+        padding: 0;
+        padding-left: 40px;
+        padding-right: 40px;
+        padding-top: 20px;
+    }
+
+    #registercontainer input{
+        width: 90%;
+    }
 }

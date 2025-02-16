@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import './Home.css';
-import auth from './auth2.jpg'
+import auth from './auth2.jpg';
 
 const Home = () => {
     return (
