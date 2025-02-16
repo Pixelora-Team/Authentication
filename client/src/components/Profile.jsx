@@ -73,7 +73,7 @@ const Profile = () => {
                     {formVisible && (
                         <div id="model">
                             <div id="modelcontent">
-                                <h3>Add User</h3>
+                                <h3>Add Image</h3>
                                 <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} id="inputfile"/>
                                 <br />
                                 <div id="buttoncontainer">
