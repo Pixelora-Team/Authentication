@@ -11,7 +11,7 @@ const Register = () => {
 
 
     const register = async (username, password) => {
-        return await axios.post('http://localhost:5000/api/auth/register', { username, password });
+        return await axios.post('https://authentication-backend-rwcp.onrender.com/api/auth/register', { username, password });
     };
 
     const handleRegister = async () => {
