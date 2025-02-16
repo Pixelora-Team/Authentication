@@ -9,7 +9,7 @@ const Login = () => {
     const [password, setPassword] = useState("");
     const navigate = useNavigate();
 
-    const API_URL = "http://localhost:5000/api/auth/";
+    const API_URL = "https://authentication-backend-rwcp.onrender.com/api/auth/";
 
     const login = async (username, password) => {
     const response = await axios.post(`${API_URL}login`, { username, password });
