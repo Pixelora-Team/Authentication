@@ -7,7 +7,7 @@ const Home = () => {
     <div id="main">
         <img src={auth} alt="authentication" id="image1"/>
         <div id="container">
-            <h1>Welcome , <br></br>to the Authentication App</h1>
+            <h1>Welcome , <br></br>to the <span>Authentication App</span> </h1>
             <div id="pbutcontainer">
                 <p>Please login or register to continue.</p>
                 <div id="buttons">

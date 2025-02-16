@@ -8,11 +8,11 @@
 body{
     display: grid;
     place-content: center;
-    background-color: #F0F8FF;
+    background-color: white;
 }
 
-#main{
 
+#main{
     justify-content: space-evenly;
     align-items: center;
     display: flex;
@@ -21,12 +21,13 @@ body{
 }
 
 #main img{
-    width: 50%;
+    min-width: 50%;
     height: 100%;
     background-color: transparent;
 }
 
 #main #container{
+    
     margin: 100px;
     text-align: left;  
     width: 50%;
@@ -42,6 +43,7 @@ body{
     margin-bottom: 30px;
     font-family: Arial, sans-serif;
 }
+
 
 #main #container #pbutcontainer p{
     font-family: Arial, sans-serif;
@@ -63,6 +65,24 @@ body{
 #main #container #pbutcontainer #buttons button:hover{
     background-color: rgb(80, 80, 220);
     cursor: pointer;
+}
+
+.typing-container {
+    white-space: nowrap;
+    overflow: hidden;
+    display: inline-block;
+    border-right: 3px solid black; /* Cursor effect */
+    width: 20ch; /* Match the text length */
+    animation: typing 3s steps(20, end), blink 0.7s infinite;
+}
+
+@keyframes typing {
+    from { width: 0; }
+    to { width: 20ch; }
+}
+
+@keyframes blink {
+    50% { border-color: transparent; }
 }
 
 @media only screen and (max-width: 768px) {

@@ -1,4 +1,4 @@
-require("dotenv").config();
+const dotenv = require('dotenv');
 const mongoose = require("mongoose");
 const express = require("express");
 const cors = require("cors");
@@ -7,16 +7,14 @@ const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const path = require("path");
 const fs = require("fs");
+const cloudinary = require('cloudinary').v2;
 
+dotenv.config();
 const app = express();
 app.use(express.json());
 app.use(cors());
 
-const uploadDir = path.join(__dirname, "uploads");
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir, { recursive: true });
-}
-app.use("/uploads", express.static(uploadDir));
+const upload = multer({ dest: "uploads/" });
 
 mongoose.connect(process.env.MONGO_URI).then(() => console.log("MongoDB Connected Successfully"))
     .catch((err) => {
@@ -24,16 +22,11 @@ mongoose.connect(process.env.MONGO_URI).then(() => console.log("MongoDB Connecte
         process.exit(1);
     });
 
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir);
-    },
-    filename: (req, file, cb) => {
-        cb(null, `${Date.now()}-${file.originalname}`);
-    }
+cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
 });
-
-const upload = multer({ storage });
 
 const UserSchema = new mongoose.Schema({
     username: { type: String, unique: true, required: true },
@@ -45,7 +38,7 @@ const User = mongoose.model("User", UserSchema);
 
 const authMiddleware = (req, res, next) => {
     const authHeader = req.header("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) return res.status(401).json({ message: "No token, authorization denied" });
+    if (!authHeader || !authHeader.startsWith("Bearer")) return res.status(401).json({ message: "No token, authorization denied" });
 
     const token = authHeader.split(" ")[1];
     try {
@@ -70,19 +63,21 @@ app.get("/api/auth/profile", authMiddleware, async (req, res) => {
     }
 });
 
-app.post("/api/auth/upload", authMiddleware, upload.array("profilePics", 5), async (req, res) => {
+app.post("/upload", authMiddleware, upload.single("image"), async (req, res) => {
     try {
         const user = await User.findById(req.user.id);
         if (!user) return res.status(404).json({ message: "User not found" });
 
-        const imagePaths = req.files.map(file => `/uploads/${file.filename}`);
-        user.profilePics.push(...imagePaths);
+        const result = await cloudinary.uploader.upload(req.file.path);
+        fs.unlinkSync(req.file.path);
+
+        user.profilePics.push(result.secure_url);
         await user.save();
 
-        res.json({ message: "Images uploaded successfully", profilePics: user.profilePics });
+        res.json({ imageUrl: result.secure_url, message: "Image uploaded successfully" });
     } catch (error) {
         console.error(error);
-        res.status(500).json({ message: "Error uploading images" });
+        res.status(500).json({ message: "Error uploading image" });
     }
 });
 

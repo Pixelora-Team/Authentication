@@ -1,12 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import './css/profile.css';
-import axios from "axios"; 
+import axios from "axios";
 
 const Profile = () => {
     const [user, setUser] = useState(null);
-    const [images, setImages] = useState([]);
-    const [previews, setPreviews] = useState([]);
+    const [image, setImage] = useState(null);
+    const [imageUrl, setImageUrl] = useState("");
+    const [allImage, setAllImage] = useState([]);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -22,6 +23,7 @@ const Profile = () => {
                     headers: { Authorization: `Bearer ${token}` }
                 });
                 setUser(response.data);
+                setAllImage(response.data.profilePics || []); 
             } catch (error) {
                 console.error("Error fetching profile:", error);
                 localStorage.removeItem("token");
@@ -32,34 +34,31 @@ const Profile = () => {
         fetchProfile();
     }, [navigate]);
 
-    const handleImageChange = (e) => {
-        const files = Array.from(e.target.files);
-        setImages(files);
-        setPreviews(files.map(file => URL.createObjectURL(file)));
-    };
-
-    const handleUpload = async () => {
-        if (images.length === 0) return;
+    const handleClick = async () => {
+        if (!image) {
+            alert("Please Select Image");
+            return;
+        }
 
         const formData = new FormData();
-        images.forEach(image => formData.append("profilePics", image));
+        formData.append("image", image); 
 
-        const token = localStorage.getItem("token");
-        
         try {
-            const response = await axios.post("http://localhost:5000/api/auth/upload", formData, {
-                headers: { 
-                    Authorization: `Bearer ${token}`,
-                    Accept: "application/json"
-                }
-            });
+            const token = localStorage.getItem("token");
 
-            setUser(prevUser => ({ ...prevUser, profilePics: response.data.profilePics }));
+            const uploadRes = await axios.post("http://localhost:5000/upload", 
+                formData, 
+                { headers: { Authorization: `Bearer ${token}`, "Content-Type": "multipart/form-data" } }
+            );
+
+            const uploadedImageUrl = uploadRes.data.imageUrl; 
+
+            setImageUrl(uploadedImageUrl);
+            setAllImage((prevImages) => [...prevImages, uploadedImageUrl]); 
         } catch (error) {
-            console.error("Error uploading images:", error);
+            console.error("Error uploading image:", error);
         }
     };
-
 
     return (
         <div>
@@ -68,25 +67,40 @@ const Profile = () => {
                 <div>
                     <p><strong>Username:</strong> {user.username}</p>
                     
-                    <div>
-                        <h3>Uploaded Images</h3>
-                        <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                            {user.profilePics?.map((pic, index) => (
-                                <img key={index} src={`http://192.168.43.246:5000${pic}`} alt="Profile" style={{ width: 100, height: 100, borderRadius: "10px" }} />
-                            ))}
+                    <form encType="multipart/form-data">
+                        <input type="file" accept="image/*" onChange={(e) => setImage(e.target.files[0])} />
+                        <button type="button" onClick={handleClick}>Upload</button>
+                    </form>
+
+                    {imageUrl && (
+                        <div>
+                            <img src={imageUrl} alt="Uploaded" width="200px" />
                         </div>
-                    </div>
+                    )}
 
-                    <input type="file" accept="image/*" multiple onChange={handleImageChange} />
-                    
-                    <div style={{ display: "flex", gap: "10px", flexWrap: "wrap" }}>
-                        {previews.map((preview, index) => (
-                            <img key={index} src={preview} alt="Preview" style={{ width: 100, height: 100, borderRadius: "10px" }} />
-                        ))}
-                    </div>
+                    {allImage.length > 0 && (
+                        <div>
+                            <h3>All Uploaded Images:</h3>
+                            <div style={{ display: "flex", flexWrap: "wrap" }}>
+                                {allImage.map((img, index) => (
+                                    <img
+                                        key={index}
+                                        src={img}
+                                        alt="Uploaded"
+                                        width="150px"
+                                        style={{ margin: "10px" }}
+                                    />
+                                ))}
+                            </div>
+                        </div>
+                    )}
 
-                    <button onClick={handleUpload}>Upload</button>
-                    <button onClick={() => { localStorage.removeItem("token"); navigate("/login"); }}>Logout</button>
+                    <button onClick={() => { 
+                        localStorage.removeItem("token"); 
+                        navigate("/login"); 
+                    }}>
+                        Logout
+                    </button>
                 </div>
             ) : (
                 <p>Loading...</p>
