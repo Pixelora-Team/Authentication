@@ -48,7 +48,7 @@ const Profile = () => {
             const token = localStorage.getItem("token");
 
             const uploadRes = await axios.post(
-                "https://authentication-backend-rwcp.onrender.com/api/auth/upload",
+                "https://authentication-backend-rwcp.onrender.com/upload",
                 formData,
                 { headers: { Authorization:` Bearer ${token}`, "Content-Type": "multipart/form-data" } }
             );
